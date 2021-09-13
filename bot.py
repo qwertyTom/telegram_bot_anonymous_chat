@@ -8,7 +8,7 @@ bot = telebot.TeleBot(TOKEN)
 
 def main_menu():
     markup = types.ReplyKeyboardMarkup(resize_keyboard = True)
-    item1 = types.KeyboardButton('👥 Поиск собеседника')
+    item1 = types.KeyboardButton('👥 Cari lawan bicara')
     markup.add(item1)
     return markup
 
@@ -21,26 +21,26 @@ def stop_dialog():
 
 def stop_search():
     markup = types.ReplyKeyboardMarkup(resize_keyboard = True)
-    item1 = types.KeyboardButton('❌ Остановить поиск')
+    item1 = types.KeyboardButton('❌ Berhenti mencari')
     markup.add(item1)
     return markup
 
 @bot.message_handler(commands = ['start'])
 def start(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard = True)
-    item1 = types.KeyboardButton('Я Парень 👨')
-    item2 = types.KeyboardButton('Я Девушка 👩‍🦱')
+    item1 = types.KeyboardButton('Saya Pria 👨')
+    item2 = types.KeyboardButton('Saya Wanita 👩‍🦱')
     markup.add(item1, item2)
 
-    bot.send_message(message.chat.id, 'Привет, {0.first_name}! Добро пожаловать в анонимный чат! Укажите ваш пол! '.format(message.from_user), reply_markup = markup)
+    bot.send_message(message.chat.id, 'Hai, {0.first_name}! Selamat datang di obrolan anonim! Tunjukkan jenis kelamin Anda! '.format(message.from_user), reply_markup = markup)
 
 @bot.message_handler(commands = ['menu'])
 def menu(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard = True)
-    item1 = types.KeyboardButton('👥 Поиск собеседника')
+    item1 = types.KeyboardButton('👥 Cari lawan bicara')
     markup.add(item1)
 
-    bot.send_message(message.chat.id, '📝 Меню'.format(message.from_user), reply_markup = markup)
+    bot.send_message(message.chat.id, '📝 Menu'.format(message.from_user), reply_markup = markup)
 
 @bot.message_handler(commands = ['stop'])
 def stop(message):
@@ -48,104 +48,105 @@ def stop(message):
     if chat_info != False:
         db.delete_chat(chat_info[0])
         markup = types.ReplyKeyboardMarkup(resize_keyboard = True)
-        item1 = types.KeyboardButton('✏️ Следующий диалог')
+        item1 = types.KeyboardButton('✏️ Dialog berikutnya')
         item2 = types.KeyboardButton('/menu')
         markup.add(item1, item2)
 
-        bot.send_message(chat_info[1], '❌ Собеседник покинул чат', reply_markup = markup)
-        bot.send_message(message.chat.id, '❌ Вы вышли из чата', reply_markup = markup)
+        bot.send_message(chat_info[1], '❌ Teman bicara meninggalkan obrolan', reply_markup = markup)
+        bot.send_message(message.chat.id, '❌ Anda telah keluar dari obrolan', reply_markup = markup)
     else:
-        bot.send_message(message.chat.id, '❌ Вы не начали чат!', reply_markup = markup)
+        bot.send_message(message.chat.id, '❌ Anda belum memulai obrolan!', reply_markup = markup)
 
 
 @bot.message_handler(content_types = ['text'])
 def bot_message(message):
     if message.chat.type == 'private':
-        if message.text == '👥 Поиск собеседника' or message.text == '✏️ Следующий диалог':
+        if message.text == '👥 Cari lawan bicara' or message.text == '✏️ Dialog berikutnya':
             markup = types.ReplyKeyboardMarkup(resize_keyboard = True)
-            item1 = types.KeyboardButton('🔎 Парень')
-            item2 = types.KeyboardButton('🔎 Девушка')
-            item3 = types.KeyboardButton('👩‍👨 Рандом')
+            item1 = types.KeyboardButton('🔎 Pria')
+            item2 = types.KeyboardButton('🔎 Wanita')
+            item3 = types.KeyboardButton('👩‍👨 Acak')
             markup.add(item1, item2, item3)
 
-            bot.send_message(message.chat.id, 'Кого искать?', reply_markup = markup)
+            bot.send_message(message.chat.id, 'Siapa yang harus dicari?', reply_markup = markup)
 
             
-        elif message.text == '❌ Остановить поиск':
+        elif message.text == '❌ Berhenti mencari':
             db.delete_queue(message.chat.id)
-            bot.send_message(message.chat.id, '❌ Поиск остановлен, напишите /menu', reply_markup = main_menu())
+            bot.send_message(message.chat.id, '❌ Pencarian dihentikan, tulis /menu', reply_markup = main_menu())
 
         
-        elif message.text == '🔎 Парень':
+        elif message.text == '🔎 Pria':
             user_info = db.get_gender_chat('male')
             chat_two = user_info[0]
             if db.create_chat(message.chat.id, chat_two) == False:
                 db.add_queue(message.chat.id, db.get_gender(message.chat.id))
-                bot.send_message(message.chat.id, '👻 Поиск собеседника', reply_markup = stop_search())
+                bot.send_message(message.chat.id, '👻 Cari lawan bicara', reply_markup = stop_search())
             else:
-                mess = 'Собеседник найден! Чтобы остановить диалог, напишите /stop'
+                mess = 'Teman bicara ditemukan! Untuk menghentikan dialog, tulis /stop'
 
                 bot.send_message(message.chat.id, mess, reply_markup = stop_dialog())
                 bot.send_message(chat_two, mess, reply_markup = stop_dialog())
         
         
-        elif message.text == '🔎 Девушка':
+        elif message.text == '🔎 Wanita':
             user_info = db.get_gender_chat('female')
             chat_two = user_info[0]
             if db.create_chat(message.chat.id, chat_two) == False:
                 db.add_queue(message.chat.id, db.get_gender(message.chat.id))
-                bot.send_message(message.chat.id, '👻 Поиск собеседника', reply_markup = stop_search())
+                bot.send_message(message.chat.id, '👻 Cari lawan bicara', reply_markup = stop_search())
             else:
-                mess = 'Собеседник найден! Чтобы остановить диалог, напишите /stop'
+                mess = 'Teman bicara ditemukan! Untuk menghentikan dialog, tulis /stop'
 
                 bot.send_message(message.chat.id, mess, reply_markup = stop_dialog())
                 bot.send_message(chat_two, mess, reply_markup = stop_dialog())
         
 
-        elif message.text == '👩‍👨 Рандом':
+        elif message.text == '👩‍👨 Acak':
+
             user_info = db.get_chat()
             chat_two = user_info[0]
 
             if db.create_chat(message.chat.id, chat_two) == False:
                 db.add_queue(message.chat.id, db.get_gender(message.chat.id))
-                bot.send_message(message.chat.id, '👻 Поиск собеседника', reply_markup = stop_search())
+                bot.send_message(message.chat.id, '👻 Cari lawan bicara', reply_markup = stop_search())
             else:
-                mess = 'Собеседник найден! Чтобы остановить диалог, напишите /stop'
+                mess = 'Teman bicara ditemukan! Untuk menghentikan dialog, tulis /stop'
 
                 bot.send_message(message.chat.id, mess, reply_markup = stop_dialog())
                 bot.send_message(chat_two, mess, reply_markup = stop_dialog())
         
-        elif message.text == '🗣 Сказать свой профиль':
+        elif message.text == '🗣 Beri tahu profil Anda':
             chat_info = db.get_active_chat(message.chat.id)
             if chat_info != False:
                 if message.from_user.username:
                     bot.send_message(chat_info[1], '@' + message.from_user.username)
-                    bot.send_message(message.chat.id, '🗣 Вы сказали свой профиль')
+                    bot.send_message(message.chat.id, '🗣 Anda mengatakan profil Anda')
                 else:
-                    bot.send_message(message.chat.id, '❌ В вашем аккаунте не указан username')
+                    bot.send_message(message.chat.id, '❌ Tidak ditentukan di akun Anda username')
             else:
-                bot.send_message(message.chat.id, '❌ Вы не начали диалог!')
+                bot.send_message(message.chat.id, '❌ Anda belum memulai dialog!')
 
         
 
         elif message.text == 'Я Парень 👨':
             if db.set_gender(message.chat.id, 'male'):
-                bot.send_message(message.chat.id, '✅ Ваш пол успешно добавлен!', reply_markup = main_menu())
+                bot.send_message(message.chat.id, '✅ Jenis kelamin Anda telah berhasil ditambahkan!', reply_markup = main_menu())
             else:
-                bot.send_message(message.chat.id, '❌ Вы уже указали ваш пол. Обратитесь в поддержку @CodeWriterBot')
+                bot.send_message(message.chat.id, '❌ Anda telah memasukkan jenis kelamin Anda. Hubungi dukungan @AndiNrdnsyh')
         
         elif message.text == 'Я Девушка 👩‍🦱':
             if db.set_gender(message.chat.id, 'female'):
-                bot.send_message(message.chat.id, '✅ Ваш пол успешно добавлен!', reply_markup = main_menu())
+                bot.send_message(message.chat.id, '✅ Jenis kelamin Anda telah berhasil ditambahkan!', reply_markup = main_menu())
             else:
-                bot.send_message(message.chat.id, '❌ Вы уже указали ваш пол. Обратитесь в поддержку @CodeWriterBot')
+                bot.send_message(message.chat.id, '❌ Anda telah memasukkan jenis kelamin Anda. Hubungi dukungan @AndiNrdnsyh')
         
         else:
             if db.get_active_chat(message.chat.id) != False:
                 chat_info = db.get_active_chat(message.chat.id)
                 bot.send_message(chat_info[1], message.text)
             else:
-                bot.send_message(message.chat.id, '❌ Вы не начали диалог!')
+                bot.send_message(message.chat.id, '❌ Anda belum memulai dialog!')
 
 
 @bot.message_handler(content_types='stickers')
@@ -155,7 +156,7 @@ def bot_stickers(message):
         if chat_info != False:
             bot.send_sticker(chat_info[1], message.sticker.file_id)
         else:
-            bot.send_message(message.chat.id, '❌ Вы не начали диалог!')
+            bot.send_message(message.chat.id, '❌ Anda belum memulai dialog!')
 
 @bot.message_handler(content_types='voice')
 def bot_voice(message):
@@ -164,7 +165,7 @@ def bot_voice(message):
         if chat_info != False:
             bot.send_voice(chat_info[1], message.voice.file_id)
         else:
-            bot.send_message(message.chat.id, '❌ Вы не начали диалог!')
+            bot.send_message(message.chat.id, '❌ Anda belum memulai dialog!')
 
 
 
